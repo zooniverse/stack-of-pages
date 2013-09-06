@@ -39,9 +39,7 @@ class StackOfPages
       @hashes[hash] = controller
 
       controllerEl = @getElOfController controller
-      controllerEl =  controllerEl.get 0 if 'jquery' of controllerEl
 
-      controllerEl.setAttribute 'data-stack-of-pages-hash', hash
       @el.appendChild controllerEl
 
     addEventListener 'hashchange', @onHashChange
@@ -73,7 +71,7 @@ class StackOfPages
 
       matches = currentHash.match hashPattern
 
-      controllerEl = @el.querySelector "[data-stack-of-pages-hash='#{hash}']"
+      controllerEl = @getElOfController controller
 
       if matches?
         foundMatch = true
@@ -104,7 +102,9 @@ class StackOfPages
       @activatePage @hashes[@default] if @default of @hashes
 
   getElOfController: (controller) ->
-    (controller[property] for property in @elProperties when controller[property]?)[0]
+    el = (controller[property] for property in @elProperties when controller[property]?)[0]
+    el =  el.get 0 if 'jquery' of el
+    el
 
   activatePage: (controller, params) ->
     controllerEl = @getElOfController controller

@@ -1,6 +1,6 @@
 {
   "name": "stack-of-pages",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "./stack-of-pages.js",
   "devDependencies": {
     "easy-exec": "~0.0.5",

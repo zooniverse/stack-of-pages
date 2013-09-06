@@ -60,10 +60,6 @@
         controller = typeof preControllerThing === 'function' ? new preControllerThing : typeof preControllerThing === 'string' ? new Page(preControllerThing) : 'jquery' in preControllerThing ? preControllerThing.get(0) : preControllerThing;
         this.hashes[hash] = controller;
         controllerEl = this.getElOfController(controller);
-        if ('jquery' in controllerEl) {
-          controllerEl = controllerEl.get(0);
-        }
-        controllerEl.setAttribute('data-stack-of-pages-hash', hash);
         this.el.appendChild(controllerEl);
       }
       addEventListener('hashchange', this.onHashChange);
@@ -102,7 +98,7 @@
         })();
         hashPattern = "^" + (hashPatternSegments.join('/')) + "/?$";
         matches = currentHash.match(hashPattern);
-        controllerEl = this.el.querySelector("[data-stack-of-pages-hash='" + hash + "']");
+        controllerEl = this.getElOfController(controller);
         if (matches != null) {
           foundMatch = true;
           params = {
@@ -144,8 +140,8 @@
     };
 
     StackOfPages.prototype.getElOfController = function(controller) {
-      var property;
-      return ((function() {
+      var el, property;
+      el = ((function() {
         var _i, _len, _ref, _results;
         _ref = this.elProperties;
         _results = [];
@@ -157,6 +153,10 @@
         }
         return _results;
       }).call(this))[0];
+      if ('jquery' in el) {
+        el = el.get(0);
+      }
+      return el;
     };
 
     StackOfPages.prototype.activatePage = function(controller, params) {
