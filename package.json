@@ -1,0 +1,9 @@
+{
+  "name": "stack-of-pages",
+  "version": "0.0.1",
+  "main": "./stack-of-pages.js",
+  "devDependencies": {
+    "easy-exec": "~0.0.5",
+    "silver-server": "~0.1.1"
+  }
+}
