@@ -3,6 +3,7 @@
   "version": "0.0.2",
   "main": "./stack-of-pages.js",
   "devDependencies": {
+    "coffee-script": "~1.6.3",
     "easy-exec": "~0.0.5",
     "silver-server": "~0.1.1"
   }
