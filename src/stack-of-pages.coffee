@@ -1,13 +1,11 @@
 class StackOfPages
-  class Page
-    el: null
-
-    constructor: (content) ->
+  class @_GenericPage
+    constructor: (@textNode) ->
       @el = document.createElement 'div'
-      @el.className = 'page-in-a-stack'
-      @el.innerHTML = content
+      @el.className = 'generic-page-in-a-stack'
+      @el.appendChild @textNode
 
-  default: '#/'
+  default: '#/' # Also set via @hashes.DEFAULT
   hashes: null
 
   tagName: 'div'
@@ -17,41 +15,50 @@ class StackOfPages
   inactiveClass: 'inactive'
   changeDisplay: true
 
-  elProperties: ['el']
+  pageElProperties: ['el']
 
   el: null
-  activeController: null
+  activePage: null
 
-  constructor: (params = {}) ->
+  constructor: (@hashes = {}, params = {}) ->
+    [@hashes, params] = [null, @hashes] if 'hashes' of @hashes
+
     @[property] = value for property, value of params
+    if 'DEFAULT' of hashes
+      @default = @hashes.DEFAULT
+
     @el = document.createElement @tagName
     @el.className = @className
 
-    for hash, preControllerThing of @hashes
-      controller = if typeof preControllerThing is 'function'
-        new preControllerThing
-      else if typeof preControllerThing is 'string'
-        new Page preControllerThing
-      else if 'jquery' of preControllerThing
-        preControllerThing.get 0
-      else preControllerThing
+    for hash, preTarget of @hashes
+      target = if typeof preTarget is 'function'
+        new preTarget
+      else if preTarget instanceof HTMLElement
+        new @constructor._GenericPage preTarget
+      else if (typeof preTarget in ['string', 'number'])
+        new @constructor._GenericPage document.createTextNode preTarget
+      else
+        preTarget
 
-      @hashes[hash] = controller
+      el = if 'jquery' of target
+        target.get 0
+      else
+        (target[property] for property in @pageElProperties when target[property]?)[0]
 
-      controllerEl = @getElOfController controller
+      @hashes[hash] = {target, el}
 
-      @el.appendChild controllerEl
+      @deactivatePage @hashes[hash]
+
+      @el.appendChild el
 
     addEventListener 'hashchange', @onHashChange
     @onHashChange()
 
   onHashChange: =>
-    @activeController?.deactivate?
     currentHash = location.hash || @default
 
     foundMatch = false
-
-    for hash, controller of @hashes
+    for hash, targetAndEl of @hashes
       paramsOrder = ['hash']
 
       hashSegments = hash.split '/'
@@ -71,8 +78,6 @@ class StackOfPages
 
       matches = currentHash.match hashPattern
 
-      controllerEl = @getElOfController controller
-
       if matches?
         foundMatch = true
 
@@ -81,15 +86,12 @@ class StackOfPages
           params[param] = matches[i]
 
         try
-          @activatePage controller, params
+          @activatePage targetAndEl, params
         catch e
           if 'ERROR' of @hashes
             params.error = e
           else
             throw e
-
-      else
-        @deactivatePage controller, params
 
     if params?.error?
       @activatePage @hashes.ERROR, params
@@ -101,26 +103,23 @@ class StackOfPages
     unless params.hash of @hashes
       @activatePage @hashes[@default] if @default of @hashes
 
-  getElOfController: (controller) ->
-    el = (controller[property] for property in @elProperties when controller[property]?)[0]
-    el =  el.get 0 if 'jquery' of el
-    el
+  activatePage: ({target, el}, params) ->
+    unless @activePage?.target is target
+      @deactivatePage @activePage, params if @activePage?
+      @activePage = {target, el}
 
-  activatePage: (controller, params) ->
-    controllerEl = @getElOfController controller
-    controllerEl.style.display = '' if @changeDisplay
-    @toggleClass controllerEl, @activeClass, true
-    @toggleClass controllerEl, @inactiveClass, false
-    controller.activate? params
+    el.style.display = '' if @changeDisplay
+    @_toggleClass el, @activeClass, true
+    @_toggleClass el, @inactiveClass, false
+    target.activate? params
 
-  deactivatePage: (controller, params) ->
-    controllerEl = @getElOfController controller
-    controllerEl.style.display = 'none' if @changeDisplay
-    @toggleClass controllerEl, @activeClass, false
-    @toggleClass controllerEl, @inactiveClass, true
-    controller.deactivate? params
+  deactivatePage: ({target, el}, params) ->
+    el.style.display = 'none' if @changeDisplay
+    @_toggleClass el, @activeClass, false
+    @_toggleClass el, @inactiveClass, true
+    target.deactivate? params
 
-  toggleClass: (el, className, condition) ->
+  _toggleClass: (el, className, condition) ->
     classList = el.className.split /\s+/
     alreadyThere = className in classList
 
