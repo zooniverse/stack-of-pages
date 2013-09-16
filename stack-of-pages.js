@@ -59,8 +59,8 @@
       _ref1 = this.hashes;
       for (hash in _ref1) {
         preTarget = _ref1[hash];
-        target = typeof preTarget === 'function' ? new preTarget : preTarget instanceof HTMLElement ? new this.constructor._GenericPage(preTarget) : ((_ref2 = typeof preTarget) === 'string' || _ref2 === 'number') ? new this.constructor._GenericPage(document.createTextNode(preTarget)) : preTarget;
-        el = 'jquery' in target ? target.get(0) : ((function() {
+        target = typeof preTarget === 'function' ? new preTarget : preTarget instanceof HTMLElement ? new this.constructor._GenericPage(preTarget) : (_ref2 = typeof preTarget) === 'string' || _ref2 === 'number' ? new this.constructor._GenericPage(document.createTextNode(preTarget)) : preTarget;
+        el = ((function() {
           var _i, _len, _ref3, _results;
           _ref3 = this.pageElProperties;
           _results = [];
@@ -72,6 +72,12 @@
           }
           return _results;
         }).call(this))[0];
+        if (el == null) {
+          el = target;
+        }
+        if ('jquery' in el) {
+          el = el.get(0);
+        }
         this.hashes[hash] = {
           target: target,
           el: el

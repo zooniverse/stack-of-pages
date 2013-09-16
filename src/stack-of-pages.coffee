@@ -35,15 +35,14 @@ class StackOfPages
         new preTarget
       else if preTarget instanceof HTMLElement
         new @constructor._GenericPage preTarget
-      else if (typeof preTarget in ['string', 'number'])
+      else if typeof preTarget in ['string', 'number']
         new @constructor._GenericPage document.createTextNode preTarget
       else
         preTarget
 
-      el = if 'jquery' of target
-        target.get 0
-      else
-        (target[property] for property in @pageElProperties when target[property]?)[0]
+      el = (target[property] for property in @pageElProperties when target[property]?)[0]
+      el ?= target
+      el = el.get 0 if 'jquery' of el
 
       @hashes[hash] = {target, el}
 
