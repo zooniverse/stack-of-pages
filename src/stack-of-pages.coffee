@@ -1,9 +1,12 @@
 class StackOfPages
   class @_GenericPage
-    constructor: (@textNode) ->
+    constructor: (content) ->
       @el = document.createElement 'div'
       @el.className = 'generic-page-in-a-stack'
-      @el.appendChild @textNode
+      if content.nodeType?
+        @el.appendChild content
+      else
+        @el.innerHTML = content
 
   default: '#/' # Also set via @hashes.DEFAULT
   hashes: null
@@ -14,6 +17,8 @@ class StackOfPages
   activeClass: 'active'
   inactiveClass: 'inactive'
   changeDisplay: true
+
+  hashRootAttr: 'data-location-hash'
 
   pageElProperties: ['el']
 
@@ -33,10 +38,8 @@ class StackOfPages
     for hash, preTarget of @hashes
       target = if typeof preTarget is 'function'
         new preTarget
-      else if preTarget instanceof HTMLElement
+      else if preTarget.nodeType? or typeof preTarget in ['string', 'number']
         new @constructor._GenericPage preTarget
-      else if typeof preTarget in ['string', 'number']
-        new @constructor._GenericPage document.createTextNode preTarget
       else
         preTarget
 
@@ -86,6 +89,7 @@ class StackOfPages
 
         try
           @activatePage targetAndEl, params
+          document.body.parentNode.setAttribute @hashRootAttr, hash
         catch e
           if 'ERROR' of @hashes
             params.error = e
@@ -129,6 +133,11 @@ class StackOfPages
       classList.splice (classList.indexOf className), 1
 
     el.className = classList.join ' '
+
+  destroy: ->
+    removeEventListener 'hashchange', @onHashChange
+    target.destroy? arguments... for hash, {target} of @hashes
+    @el.parentNode.removeChild @el
 
 window.StackOfPages = StackOfPages
 module?.exports = StackOfPages

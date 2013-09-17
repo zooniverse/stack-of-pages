@@ -1,6 +1,6 @@
 {
   "name": "stack-of-pages",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "main": "./stack-of-pages.js",
   "devDependencies": {
     "coffee-script": "~1.6.3",

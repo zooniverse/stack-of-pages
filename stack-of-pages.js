@@ -6,11 +6,14 @@
 
   StackOfPages = (function() {
     StackOfPages._GenericPage = (function() {
-      function _GenericPage(textNode) {
-        this.textNode = textNode;
+      function _GenericPage(content) {
         this.el = document.createElement('div');
         this.el.className = 'generic-page-in-a-stack';
-        this.el.appendChild(this.textNode);
+        if (content.nodeType != null) {
+          this.el.appendChild(content);
+        } else {
+          this.el.innerHTML = content;
+        }
       }
 
       return _GenericPage;
@@ -30,6 +33,8 @@
     StackOfPages.prototype.inactiveClass = 'inactive';
 
     StackOfPages.prototype.changeDisplay = true;
+
+    StackOfPages.prototype.hashRootAttr = 'data-location-hash';
 
     StackOfPages.prototype.pageElProperties = ['el'];
 
@@ -59,7 +64,7 @@
       _ref1 = this.hashes;
       for (hash in _ref1) {
         preTarget = _ref1[hash];
-        target = typeof preTarget === 'function' ? new preTarget : preTarget instanceof HTMLElement ? new this.constructor._GenericPage(preTarget) : (_ref2 = typeof preTarget) === 'string' || _ref2 === 'number' ? new this.constructor._GenericPage(document.createTextNode(preTarget)) : preTarget;
+        target = typeof preTarget === 'function' ? new preTarget : (preTarget.nodeType != null) || ((_ref2 = typeof preTarget) === 'string' || _ref2 === 'number') ? new this.constructor._GenericPage(preTarget) : preTarget;
         el = ((function() {
           var _i, _len, _ref3, _results;
           _ref3 = this.pageElProperties;
@@ -131,6 +136,7 @@
           }
           try {
             this.activatePage(targetAndEl, params);
+            document.body.parentNode.setAttribute(this.hashRootAttr, hash);
           } catch (_error) {
             e = _error;
             if ('ERROR' in this.hashes) {
@@ -201,6 +207,19 @@
         classList.splice(classList.indexOf(className), 1);
       }
       return el.className = classList.join(' ');
+    };
+
+    StackOfPages.prototype.destroy = function() {
+      var hash, target, _ref;
+      removeEventListener('hashchange', this.onHashChange);
+      _ref = this.hashes;
+      for (hash in _ref) {
+        target = _ref[hash].target;
+        if (typeof target.destroy === "function") {
+          target.destroy.apply(target, arguments);
+        }
+      }
+      return this.el.parentNode.removeChild(this.el);
     };
 
     return StackOfPages;
