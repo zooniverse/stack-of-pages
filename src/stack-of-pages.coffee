@@ -106,9 +106,9 @@ class StackOfPages
     unless params.hash of @hashes
       @activatePage @hashes[@default] if @default of @hashes
 
-  activatePage: ({target, el}, params) ->
+  activatePage: ({target, el}, params...) ->
     unless @activePage?.target is target
-      @deactivatePage @activePage, params if @activePage?
+      @deactivatePage @activePage, params... if @activePage?
       @activePage = {target, el}
 
     el.style.display = '' if @changeDisplay
@@ -116,11 +116,11 @@ class StackOfPages
     @_toggleClass el, @inactiveClass, false
     target.activate? params
 
-  deactivatePage: ({target, el}, params) ->
+  deactivatePage: ({target, el}, params...) ->
     el.style.display = 'none' if @changeDisplay
     @_toggleClass el, @activeClass, false
     @_toggleClass el, @inactiveClass, true
-    target.deactivate? params
+    target.deactivate? params...
 
   _toggleClass: (el, className, condition) ->
     classList = el.className.split /\s+/

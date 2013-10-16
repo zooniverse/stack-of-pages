@@ -2,6 +2,7 @@
 (function() {
   var StackOfPages,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __slice = [].slice,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   StackOfPages = (function() {
@@ -165,12 +166,13 @@
       }
     };
 
-    StackOfPages.prototype.activatePage = function(_arg, params) {
-      var el, target, _ref;
+    StackOfPages.prototype.activatePage = function() {
+      var el, params, target, _arg, _ref;
+      _arg = arguments[0], params = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
       target = _arg.target, el = _arg.el;
       if (((_ref = this.activePage) != null ? _ref.target : void 0) !== target) {
         if (this.activePage != null) {
-          this.deactivatePage(this.activePage, params);
+          this.deactivatePage.apply(this, [this.activePage].concat(__slice.call(params)));
         }
         this.activePage = {
           target: target,
@@ -185,15 +187,16 @@
       return typeof target.activate === "function" ? target.activate(params) : void 0;
     };
 
-    StackOfPages.prototype.deactivatePage = function(_arg, params) {
-      var el, target;
+    StackOfPages.prototype.deactivatePage = function() {
+      var el, params, target, _arg;
+      _arg = arguments[0], params = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
       target = _arg.target, el = _arg.el;
       if (this.changeDisplay) {
         el.style.display = 'none';
       }
       this._toggleClass(el, this.activeClass, false);
       this._toggleClass(el, this.inactiveClass, true);
-      return typeof target.deactivate === "function" ? target.deactivate(params) : void 0;
+      return typeof target.deactivate === "function" ? target.deactivate.apply(target, params) : void 0;
     };
 
     StackOfPages.prototype._toggleClass = function(el, className, condition) {
