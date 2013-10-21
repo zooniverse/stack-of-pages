@@ -184,7 +184,7 @@
       }
       this._toggleClass(el, this.activeClass, true);
       this._toggleClass(el, this.inactiveClass, false);
-      return typeof target.activate === "function" ? target.activate(params) : void 0;
+      return typeof target.activate === "function" ? target.activate.apply(target, params) : void 0;
     };
 
     StackOfPages.prototype.deactivatePage = function() {

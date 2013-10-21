@@ -114,7 +114,7 @@ class StackOfPages
     el.style.display = '' if @changeDisplay
     @_toggleClass el, @activeClass, true
     @_toggleClass el, @inactiveClass, false
-    target.activate? params
+    target.activate? params...
 
   deactivatePage: ({target, el}, params...) ->
     el.style.display = 'none' if @changeDisplay
