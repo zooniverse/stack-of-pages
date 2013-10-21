@@ -3,34 +3,27 @@ StackOfPages = window.StackOfPages
 aboutBarEl = document.createElement 'div'
 aboutBarEl.innerHTML = 'About bar'
 
-class ClassifyPage extends StackOfPages._GenericPage
-  textNode: document.createTextNode 'This is the classify page.'
-  constructor: -> super @textNode
+class DemoPage extends StackOfPages._GenericPage
+  content: ''
+  constructor: ->
+    super @content
 
-class ProfilePage extends StackOfPages._GenericPage
-  textNode: document.createTextNode 'This is the profile.'
-  constructor: -> super @textNode
+class ClassifyPage extends DemoPage
+  content: 'This is the classify page.'
 
-class ThrowAnErrorPage extends StackOfPages._GenericPage
-  textNode: document.createTextNode()
-  constructor: -> super @textNode
+class ProfilePage extends DemoPage
+  content: 'This is the profile.'
+
+class ThrowAnErrorPage extends DemoPage
   activate: ->
-    throw new Error "This is an error thrown from the `activate` method."
+    throw new Error "This is an error thrown from the `activate` method (#{new Date})."
 
-  deactivate: (params) ->
-    return unless params?
-    console.log 'Deactivating error page'
-
-class DisplayErrorPage extends StackOfPages._GenericPage
-  textNode: document.createTextNode()
-  constructor: -> super @textNode
+class DisplayErrorPage extends DemoPage
   activate: (params) ->
-    console.log 'Error page got an error:', params.error.toString()
     @el.innerHTML = """
       There was an error.<br />
-      <code>#{JSON.stringify params}</code><br />
-      <br />
-      Check the console for the actual error.
+      Params were: <code>#{JSON.stringify params}</code><br />
+      Error was <code>#{params.error}</code>
     """
 
 window.stack = new StackOfPages
