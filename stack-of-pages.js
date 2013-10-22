@@ -21,9 +21,9 @@
 
     })();
 
-    StackOfPages.prototype["default"] = '#/';
-
     StackOfPages.prototype.hashes = null;
+
+    StackOfPages.prototype["default"] = '#/';
 
     StackOfPages.prototype.tagName = 'div';
 
@@ -43,6 +43,10 @@
 
     StackOfPages.prototype.activePage = null;
 
+    StackOfPages.prototype.recentClick = false;
+
+    StackOfPages.prototype.scrollOffsets = null;
+
     function StackOfPages(hashes, params) {
       var el, hash, preTarget, property, target, value, _ref, _ref1, _ref2;
       this.hashes = hashes != null ? hashes : {};
@@ -50,6 +54,8 @@
         params = {};
       }
       this.onHashChange = __bind(this.onHashChange, this);
+      this.onScroll = __bind(this.onScroll, this);
+      this.onClick = __bind(this.onClick, this);
       if ('hashes' in this.hashes) {
         _ref = [null, this.hashes], this.hashes = _ref[0], params = _ref[1];
       }
@@ -57,11 +63,19 @@
         value = params[property];
         this[property] = value;
       }
-      if ('DEFAULT' in hashes) {
+      if (this.hashes == null) {
+        this.hashes = {};
+      }
+      if ('DEFAULT' in this.hashes) {
         this["default"] = this.hashes.DEFAULT;
       }
-      this.el = document.createElement(this.tagName);
-      this.el.className = this.className;
+      if (this.el == null) {
+        this.el = document.createElement(this.tagName);
+      }
+      this._toggleClass(this.el, this.className, true);
+      if (this.scrollOffsets == null) {
+        this.scrollOffsets = {};
+      }
       _ref1 = this.hashes;
       for (hash in _ref1) {
         preTarget = _ref1[hash];
@@ -91,12 +105,27 @@
         this.deactivatePage(this.hashes[hash]);
         this.el.appendChild(el);
       }
-      addEventListener('hashchange', this.onHashChange);
+      addEventListener('click', this.onClick, false);
+      addEventListener('scroll', this.onScroll, false);
+      addEventListener('hashchange', this.onHashChange, false);
       this.onHashChange();
     }
 
+    StackOfPages.prototype.onClick = function(e) {
+      var _this = this;
+      this.recentClick = true;
+      return setTimeout(function() {
+        return _this.recentClick = false;
+      });
+    };
+
+    StackOfPages.prototype.onScroll = function() {
+      return this.scrollOffsets[location.hash] = [pageXOffset, pageYOffset];
+    };
+
     StackOfPages.prototype.onHashChange = function() {
-      var currentHash, e, foundMatch, hash, hashPattern, hashPatternSegments, hashSegments, i, matches, param, params, paramsOrder, segment, targetAndEl, _i, _len, _ref;
+      var currentHash, e, foundMatch, hash, hashPattern, hashPatternSegments, hashSegments, i, matches, param, params, paramsOrder, segment, targetAndEl, _i, _len, _ref,
+        _this = this;
       currentHash = location.hash || this["default"];
       foundMatch = false;
       _ref = this.hashes;
@@ -153,8 +182,15 @@
       }
       if (!foundMatch) {
         if ('NOT_FOUND' in this.hashes) {
-          return this.activatePage(this.hashes.NOT_FOUND, params);
+          this.activatePage(this.hashes.NOT_FOUND, params);
         }
+      }
+      if (!this.recentClick) {
+        return setTimeout(function() {
+          var scrollOffset;
+          scrollOffset = _this.scrollOffsets[location.hash] || [0, 0];
+          return scrollTo.apply(null, scrollOffset);
+        });
       }
     };
 
@@ -214,7 +250,9 @@
 
     StackOfPages.prototype.destroy = function() {
       var hash, target, _ref;
-      removeEventListener('hashchange', this.onHashChange);
+      removeEventListener('click', this.onClick, false);
+      removeEventListener('scroll', this.onScroll, false);
+      removeEventListener('hashchange', this.onHashChange, false);
       _ref = this.hashes;
       for (hash in _ref) {
         target = _ref[hash].target;

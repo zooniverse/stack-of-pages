@@ -8,8 +8,8 @@ class StackOfPages
       else
         @el.innerHTML = content
 
-  default: '#/' # Also set via @hashes.DEFAULT
-  hashes: null
+  hashes: null # Special keys are "DEFAULT", "NOT_FOUND", and "ERROR"
+  default: '#/'
 
   tagName: 'div'
   className: 'stack-of-pages'
@@ -25,15 +25,23 @@ class StackOfPages
   el: null
   activePage: null
 
+  recentClick: false
+  scrollOffsets: null
+
   constructor: (@hashes = {}, params = {}) ->
+    # Did we only pass in an options object?
     [@hashes, params] = [null, @hashes] if 'hashes' of @hashes
 
     @[property] = value for property, value of params
-    if 'DEFAULT' of hashes
-      @default = @hashes.DEFAULT
 
-    @el = document.createElement @tagName
-    @el.className = @className
+    @hashes ?= {}
+
+    @default = @hashes.DEFAULT if 'DEFAULT' of @hashes
+
+    @el ?= document.createElement @tagName
+    @_toggleClass @el, @className, true
+
+    @scrollOffsets ?= {}
 
     for hash, preTarget of @hashes
       target = if typeof preTarget is 'function'
@@ -53,8 +61,19 @@ class StackOfPages
 
       @el.appendChild el
 
-    addEventListener 'hashchange', @onHashChange
+    addEventListener 'click', @onClick, false
+    addEventListener 'scroll', @onScroll, false
+    addEventListener 'hashchange', @onHashChange, false
+
     @onHashChange()
+
+  onClick: (e) =>
+    # If a link was recently clicked, we'll ignore the scroll offset.
+    @recentClick = true
+    setTimeout => @recentClick = false
+
+  onScroll: =>
+    @scrollOffsets[location.hash] = [pageXOffset, pageYOffset]
 
   onHashChange: =>
     currentHash = location.hash || @default
@@ -102,6 +121,10 @@ class StackOfPages
     unless foundMatch
       @activatePage @hashes.NOT_FOUND, params if 'NOT_FOUND' of @hashes
 
+    unless @recentClick then setTimeout =>
+      scrollOffset = @scrollOffsets[location.hash] || [0, 0]
+      scrollTo scrollOffset...
+
   activate: (params) ->
     unless params.hash of @hashes
       @activatePage @hashes[@default] if @default of @hashes
@@ -135,7 +158,9 @@ class StackOfPages
     el.className = classList.join ' '
 
   destroy: ->
-    removeEventListener 'hashchange', @onHashChange
+    removeEventListener 'click', @onClick, false
+    removeEventListener 'scroll', @onScroll, false
+    removeEventListener 'hashchange', @onHashChange, false
     target.destroy? arguments... for hash, {target} of @hashes
     @el.parentNode.removeChild @el
 

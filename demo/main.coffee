@@ -27,7 +27,7 @@ class DisplayErrorPage extends DemoPage
     """
 
 window.stack = new StackOfPages
-  '#/': 'Home' # Given a string
+  '#/': ('Home'.split '').join '<br />' # Given a string
   '#/about/*': new StackOfPages # Given another instance of StackOfPages
     '#/about/foo': 'About foo'
     '#/about/bar': aboutBarEl # Given an HTML element
