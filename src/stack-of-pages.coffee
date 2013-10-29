@@ -122,8 +122,8 @@ class StackOfPages
       @activatePage @hashes.NOT_FOUND, params if 'NOT_FOUND' of @hashes
 
     unless @recentClick then setTimeout =>
-      scrollOffset = @scrollOffsets[location.hash] || [0, 0]
-      scrollTo scrollOffset...
+      [x, y] = @scrollOffsets[location.hash] || [0, 0]
+      scrollTo x, y
 
   activate: (params) ->
     unless params.hash of @hashes
