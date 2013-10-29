@@ -187,9 +187,9 @@
       }
       if (!this.recentClick) {
         return setTimeout(function() {
-          var scrollOffset;
-          scrollOffset = _this.scrollOffsets[location.hash] || [0, 0];
-          return scrollTo.apply(null, scrollOffset);
+          var x, y, _ref1;
+          _ref1 = _this.scrollOffsets[location.hash] || [0, 0], x = _ref1[0], y = _ref1[1];
+          return scrollTo(x, y);
         });
       }
     };
