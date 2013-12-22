@@ -44,6 +44,8 @@
 
     StackOfPages.prototype["default"] = '#/';
 
+    StackOfPages.prototype.functionsAreConstructors = true;
+
     StackOfPages.prototype.tagName = 'div';
 
     StackOfPages.prototype.className = 'stack-of-pages';
@@ -81,6 +83,7 @@
       }
       if ('DEFAULT' in this.hashes) {
         this["default"] = this.hashes.DEFAULT;
+        delete this.hashes.DEFAULT;
       }
       if (this.el == null) {
         this.el = document.createElement(this.tagName);
@@ -89,7 +92,7 @@
       _ref1 = this.hashes;
       for (hash in _ref1) {
         preTarget = _ref1[hash];
-        target = typeof preTarget === 'function' ? new preTarget : (preTarget.nodeType != null) || ((_ref2 = typeof preTarget) === 'string' || _ref2 === 'number') ? new this.constructor._GenericPage(preTarget) : preTarget;
+        target = typeof preTarget === 'function' ? this.functionsAreConstructors ? new preTarget : preTarget() : (preTarget.nodeType != null) || ((_ref2 = typeof preTarget) === 'string' || _ref2 === 'number') ? new this.constructor._GenericPage(preTarget) : preTarget;
         el = ((function() {
           var _i, _len, _ref3, _results;
           _ref3 = this.pageElProperties;

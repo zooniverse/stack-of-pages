@@ -27,9 +27,10 @@ class StackOfPages
   hashes: null # Special keys are "DEFAULT", "NOT_FOUND", and "ERROR"
   default: '#/'
 
+  functionsAreConstructors: true
+
   tagName: 'div'
   className: 'stack-of-pages'
-
   activeClass: 'active'
   inactiveClass: 'inactive'
   changeDisplay: true
@@ -49,14 +50,19 @@ class StackOfPages
 
     @hashes ?= {}
 
-    @default = @hashes.DEFAULT if 'DEFAULT' of @hashes
+    if 'DEFAULT' of @hashes
+      @default = @hashes.DEFAULT
+      delete @hashes.DEFAULT
 
     @el ?= document.createElement @tagName
     @_toggleClass @el, @className, true
 
     for hash, preTarget of @hashes
       target = if typeof preTarget is 'function'
-        new preTarget
+        if @functionsAreConstructors
+          new preTarget
+        else
+          preTarget()
       else if preTarget.nodeType? or typeof preTarget in ['string', 'number']
         new @constructor._GenericPage preTarget
       else
