@@ -134,7 +134,7 @@
       if (this.constructor.recentClick || !(currentHash in this.constructor.scrollOffsets)) {
         this.constructor.scrollOffsets[currentHash] = [0, 0];
       }
-      _ref = this.constructor.scrollOffsets[location.hash], x = _ref[0], y = _ref[1];
+      _ref = this.constructor.scrollOffsets[currentHash], x = _ref[0], y = _ref[1];
       setTimeout(function() {
         return scrollTo(x, y);
       });

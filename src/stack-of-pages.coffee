@@ -90,7 +90,7 @@ class StackOfPages
     if @constructor.recentClick or currentHash not of @constructor.scrollOffsets
       @constructor.scrollOffsets[currentHash] = [0, 0]
 
-    [x, y] = @constructor.scrollOffsets[location.hash]
+    [x, y] = @constructor.scrollOffsets[currentHash]
     setTimeout => scrollTo x, y
 
     foundMatch = false
