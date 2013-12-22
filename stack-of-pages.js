@@ -6,6 +6,25 @@
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   StackOfPages = (function() {
+    StackOfPages.recentClick = false;
+
+    StackOfPages.onClick = function(e) {
+      StackOfPages.recentClick = true;
+      return setTimeout((function() {
+        return StackOfPages.recentClick = false;
+      }), 50);
+    };
+
+    addEventListener('click', StackOfPages.onClick, false);
+
+    StackOfPages.scrollOffsets = {};
+
+    StackOfPages.onScroll = function() {
+      return StackOfPages.scrollOffsets[location.hash] = [pageXOffset, pageYOffset];
+    };
+
+    addEventListener('scroll', StackOfPages.onScroll, false);
+
     StackOfPages._GenericPage = (function() {
       function _GenericPage(content) {
         this.el = document.createElement('div');
@@ -43,10 +62,6 @@
 
     StackOfPages.prototype.activePage = null;
 
-    StackOfPages.prototype.recentClick = false;
-
-    StackOfPages.prototype.scrollOffsets = null;
-
     function StackOfPages(hashes, params) {
       var el, hash, preTarget, property, target, value, _ref, _ref1, _ref2;
       this.hashes = hashes != null ? hashes : {};
@@ -54,8 +69,6 @@
         params = {};
       }
       this.onHashChange = __bind(this.onHashChange, this);
-      this.onScroll = __bind(this.onScroll, this);
-      this.onClick = __bind(this.onClick, this);
       if ('hashes' in this.hashes) {
         _ref = [null, this.hashes], this.hashes = _ref[0], params = _ref[1];
       }
@@ -73,9 +86,6 @@
         this.el = document.createElement(this.tagName);
       }
       this._toggleClass(this.el, this.className, true);
-      if (this.scrollOffsets == null) {
-        this.scrollOffsets = {};
-      }
       _ref1 = this.hashes;
       for (hash in _ref1) {
         preTarget = _ref1[hash];
@@ -105,32 +115,25 @@
         this.deactivatePage(this.hashes[hash]);
         this.el.appendChild(el);
       }
-      addEventListener('click', this.onClick, false);
-      addEventListener('scroll', this.onScroll, false);
       addEventListener('hashchange', this.onHashChange, false);
       this.onHashChange();
     }
 
-    StackOfPages.prototype.onClick = function(e) {
-      var _this = this;
-      this.recentClick = true;
-      return setTimeout(function() {
-        return _this.recentClick = false;
-      });
-    };
-
-    StackOfPages.prototype.onScroll = function() {
-      return this.scrollOffsets[location.hash] = [pageXOffset, pageYOffset];
-    };
-
     StackOfPages.prototype.onHashChange = function() {
-      var currentHash, e, foundMatch, hash, hashPattern, hashPatternSegments, hashSegments, i, matches, param, params, paramsOrder, segment, targetAndEl, _i, _len, _ref,
+      var currentHash, e, foundMatch, hash, hashPattern, hashPatternSegments, hashSegments, i, matches, param, params, paramsOrder, segment, targetAndEl, x, y, _i, _len, _ref, _ref1,
         _this = this;
       currentHash = location.hash || this["default"];
+      if (this.constructor.recentClick || !(currentHash in this.constructor.scrollOffsets)) {
+        this.constructor.scrollOffsets[currentHash] = [0, 0];
+      }
+      _ref = this.constructor.scrollOffsets[location.hash], x = _ref[0], y = _ref[1];
+      setTimeout(function() {
+        return scrollTo(x, y);
+      });
       foundMatch = false;
-      _ref = this.hashes;
-      for (hash in _ref) {
-        targetAndEl = _ref[hash];
+      _ref1 = this.hashes;
+      for (hash in _ref1) {
+        targetAndEl = _ref1[hash];
         paramsOrder = ['hash'];
         hashSegments = hash.split('/');
         hashPatternSegments = (function() {
@@ -182,15 +185,8 @@
       }
       if (!foundMatch) {
         if ('NOT_FOUND' in this.hashes) {
-          this.activatePage(this.hashes.NOT_FOUND, params);
+          return this.activatePage(this.hashes.NOT_FOUND, params);
         }
-      }
-      if (!this.recentClick) {
-        return setTimeout(function() {
-          var x, y, _ref1;
-          _ref1 = _this.scrollOffsets[location.hash] || [0, 0], x = _ref1[0], y = _ref1[1];
-          return scrollTo(x, y);
-        });
       }
     };
 
@@ -250,8 +246,6 @@
 
     StackOfPages.prototype.destroy = function() {
       var hash, target, _ref;
-      removeEventListener('click', this.onClick, false);
-      removeEventListener('scroll', this.onScroll, false);
       removeEventListener('hashchange', this.onHashChange, false);
       _ref = this.hashes;
       for (hash in _ref) {
@@ -265,7 +259,7 @@
 
     return StackOfPages;
 
-  })();
+  }).call(this);
 
   window.StackOfPages = StackOfPages;
 

@@ -35,7 +35,7 @@ window.stack = new StackOfPages
   '#/classify': ClassifyPage # Given a class
   '#/profile': new ProfilePage # Given an instance of a class
   '#/throw-an-error': ThrowAnErrorPage # Test errors
-  ERROR: DisplayErrorPage
   NOT_FOUND: 'Not found!'
+  ERROR: DisplayErrorPage
 
 document.body.appendChild window.stack.el

@@ -1,4 +1,20 @@
 class StackOfPages
+  @recentClick = false
+
+  @onClick: (e) =>
+    # If a link was recently clicked, we'll ignore the scroll offset.
+    @recentClick = true
+    setTimeout (=> @recentClick = false), 50
+
+  addEventListener 'click', @onClick, false
+
+  @scrollOffsets = {}
+
+  @onScroll: =>
+    @scrollOffsets[location.hash] = [pageXOffset, pageYOffset]
+
+  addEventListener 'scroll', @onScroll, false
+
   class @_GenericPage
     constructor: (content) ->
       @el = document.createElement 'div'
@@ -25,9 +41,6 @@ class StackOfPages
   el: null
   activePage: null
 
-  recentClick: false
-  scrollOffsets: null
-
   constructor: (@hashes = {}, params = {}) ->
     # Did we only pass in an options object?
     [@hashes, params] = [null, @hashes] if 'hashes' of @hashes
@@ -40,8 +53,6 @@ class StackOfPages
 
     @el ?= document.createElement @tagName
     @_toggleClass @el, @className, true
-
-    @scrollOffsets ?= {}
 
     for hash, preTarget of @hashes
       target = if typeof preTarget is 'function'
@@ -61,22 +72,18 @@ class StackOfPages
 
       @el.appendChild el
 
-    addEventListener 'click', @onClick, false
-    addEventListener 'scroll', @onScroll, false
     addEventListener 'hashchange', @onHashChange, false
 
     @onHashChange()
 
-  onClick: (e) =>
-    # If a link was recently clicked, we'll ignore the scroll offset.
-    @recentClick = true
-    setTimeout => @recentClick = false
-
-  onScroll: =>
-    @scrollOffsets[location.hash] = [pageXOffset, pageYOffset]
-
   onHashChange: =>
     currentHash = location.hash || @default
+
+    if @constructor.recentClick or currentHash not of @constructor.scrollOffsets
+      @constructor.scrollOffsets[currentHash] = [0, 0]
+
+    [x, y] = @constructor.scrollOffsets[location.hash]
+    setTimeout => scrollTo x, y
 
     foundMatch = false
     for hash, targetAndEl of @hashes
@@ -121,10 +128,6 @@ class StackOfPages
     unless foundMatch
       @activatePage @hashes.NOT_FOUND, params if 'NOT_FOUND' of @hashes
 
-    unless @recentClick then setTimeout =>
-      [x, y] = @scrollOffsets[location.hash] || [0, 0]
-      scrollTo x, y
-
   activate: (params) ->
     unless params.hash of @hashes
       @activatePage @hashes[@default] if @default of @hashes
@@ -158,8 +161,6 @@ class StackOfPages
     el.className = classList.join ' '
 
   destroy: ->
-    removeEventListener 'click', @onClick, false
-    removeEventListener 'scroll', @onScroll, false
     removeEventListener 'hashchange', @onHashChange, false
     target.destroy? arguments... for hash, {target} of @hashes
     @el.parentNode.removeChild @el
