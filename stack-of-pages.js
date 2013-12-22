@@ -65,7 +65,7 @@
     StackOfPages.prototype.activePage = null;
 
     function StackOfPages(hashes, params) {
-      var el, hash, preTarget, property, target, value, _ref, _ref1, _ref2;
+      var hash, preTarget, property, value, _ref, _ref1;
       this.hashes = hashes != null ? hashes : {};
       if (params == null) {
         params = {};
@@ -92,35 +92,40 @@
       _ref1 = this.hashes;
       for (hash in _ref1) {
         preTarget = _ref1[hash];
-        target = typeof preTarget === 'function' ? this.functionsAreConstructors ? new preTarget : preTarget() : (preTarget.nodeType != null) || ((_ref2 = typeof preTarget) === 'string' || _ref2 === 'number') ? new this.constructor._GenericPage(preTarget) : preTarget;
-        el = ((function() {
-          var _i, _len, _ref3, _results;
-          _ref3 = this.pageElProperties;
-          _results = [];
-          for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
-            property = _ref3[_i];
-            if (target[property] != null) {
-              _results.push(target[property]);
-            }
-          }
-          return _results;
-        }).call(this))[0];
-        if (el == null) {
-          el = target;
-        }
-        if ('jquery' in el) {
-          el = el.get(0);
-        }
-        this.hashes[hash] = {
-          target: target,
-          el: el
-        };
-        this.deactivatePage(this.hashes[hash]);
-        this.el.appendChild(el);
+        this.add(hash, preTarget);
       }
       addEventListener('hashchange', this.onHashChange, false);
       this.onHashChange();
     }
+
+    StackOfPages.prototype.add = function(hash, preTarget) {
+      var el, property, target, _ref;
+      target = typeof preTarget === 'function' ? this.functionsAreConstructors ? new preTarget : preTarget() : (preTarget.nodeType != null) || ((_ref = typeof preTarget) === 'string' || _ref === 'number') ? new this.constructor._GenericPage(preTarget) : preTarget;
+      el = ((function() {
+        var _i, _len, _ref1, _results;
+        _ref1 = this.pageElProperties;
+        _results = [];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          property = _ref1[_i];
+          if (target[property] != null) {
+            _results.push(target[property]);
+          }
+        }
+        return _results;
+      }).call(this))[0];
+      if (el == null) {
+        el = target;
+      }
+      if ('jquery' in el) {
+        el = el.get(0);
+      }
+      this.hashes[hash] = {
+        target: target,
+        el: el
+      };
+      this.deactivatePage(this.hashes[hash]);
+      return this.el.appendChild(el);
+    };
 
     StackOfPages.prototype.onHashChange = function() {
       var currentHash, e, foundMatch, hash, hashPattern, hashPatternSegments, hashSegments, i, matches, param, params, paramsOrder, segment, targetAndEl, x, y, _i, _len, _ref, _ref1,

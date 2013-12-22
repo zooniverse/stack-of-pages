@@ -57,30 +57,32 @@ class StackOfPages
     @el ?= document.createElement @tagName
     @_toggleClass @el, @className, true
 
-    for hash, preTarget of @hashes
-      target = if typeof preTarget is 'function'
-        if @functionsAreConstructors
-          new preTarget
-        else
-          preTarget()
-      else if preTarget.nodeType? or typeof preTarget in ['string', 'number']
-        new @constructor._GenericPage preTarget
-      else
-        preTarget
-
-      el = (target[property] for property in @pageElProperties when target[property]?)[0]
-      el ?= target
-      el = el.get 0 if 'jquery' of el
-
-      @hashes[hash] = {target, el}
-
-      @deactivatePage @hashes[hash]
-
-      @el.appendChild el
+    @add hash, preTarget for hash, preTarget of @hashes
 
     addEventListener 'hashchange', @onHashChange, false
 
     @onHashChange()
+
+  add: (hash, preTarget) ->
+    target = if typeof preTarget is 'function'
+      if @functionsAreConstructors
+        new preTarget
+      else
+        preTarget()
+    else if preTarget.nodeType? or typeof preTarget in ['string', 'number']
+      new @constructor._GenericPage preTarget
+    else
+      preTarget
+
+    el = (target[property] for property in @pageElProperties when target[property]?)[0]
+    el ?= target
+    el = el.get 0 if 'jquery' of el
+
+    @hashes[hash] = {target, el}
+
+    @deactivatePage @hashes[hash]
+
+    @el.appendChild el
 
   onHashChange: =>
     currentHash = location.hash || @default
