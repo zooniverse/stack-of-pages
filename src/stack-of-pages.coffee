@@ -33,7 +33,7 @@ class StackOfPages
   hashRootAttr: 'data-location-hash'
   activateEvent: 'activate-in-stack'
   deactivateEvent: 'deactivate-in-stack'
-  notFoundKey: 'NOT_FOUND'
+  notFoundKey: 'notFound'
 
   el: null
   current: null
@@ -115,7 +115,7 @@ class StackOfPages
         switch segment.charAt 0
           when ':'
             paramsOrder.push segment.slice 1
-            '?([^\/]*)'
+            '?([^/]*)'
           when '*'
             paramsOrder.push '_'
             '?(.*)'

@@ -14,6 +14,6 @@ window.stack = new StackOfPages
     default: '#/about/foo'
   '#/classify': toElement 'Classify'
   '#/profile': toElement 'Profile'
-  'NOT_FOUND': toElement 'Not-found'
+  notFound: toElement 'Not-found'
 
 document.body.appendChild window.stack.el

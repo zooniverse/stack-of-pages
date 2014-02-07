@@ -52,7 +52,7 @@
 
     StackOfPages.prototype.deactivateEvent = 'deactivate-in-stack';
 
-    StackOfPages.prototype.notFoundKey = 'NOT_FOUND';
+    StackOfPages.prototype.notFoundKey = 'notFound';
 
     StackOfPages.prototype.el = null;
 
@@ -158,7 +158,7 @@
             switch (segment.charAt(0)) {
               case ':':
                 paramsOrder.push(segment.slice(1));
-                _results.push('?([^\/]*)');
+                _results.push('?([^/]*)');
                 break;
               case '*':
                 paramsOrder.push('_');
