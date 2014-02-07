@@ -115,7 +115,7 @@ class StackOfPages
         switch segment.charAt 0
           when ':'
             paramsOrder.push segment.slice 1
-            '([^\/]+)'
+            '?([^\/]*)'
           when '*'
             paramsOrder.push '_'
             '?(.*)'
@@ -144,7 +144,6 @@ class StackOfPages
         @activate @hashes.NOT_FOUND, params
 
   activate: (el, params) ->
-    console.log 'activating', el
     if @current?
       @deactivate @current, params
 

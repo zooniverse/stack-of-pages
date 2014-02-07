@@ -8,7 +8,7 @@ toElement = (string) ->
 
 window.stack = new StackOfPages
   '#/': toElement 'Home'
-  '#/about/*': new StackOfPages
+  '#/about/:topic': new StackOfPages
     '#/about/foo': toElement 'About-foo'
     '#/about/bar': toElement 'About-bar'
     default: '#/about/foo'

@@ -158,7 +158,7 @@
             switch (segment.charAt(0)) {
               case ':':
                 paramsOrder.push(segment.slice(1));
-                _results.push('([^\/]+)');
+                _results.push('?([^\/]*)');
                 break;
               case '*':
                 paramsOrder.push('_');
@@ -198,7 +198,6 @@
 
     StackOfPages.prototype.activate = function(el, params) {
       var _ref;
-      console.log('activating', el);
       if (this.current != null) {
         this.deactivate(this.current, params);
       }
