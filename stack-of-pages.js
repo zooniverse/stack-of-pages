@@ -101,22 +101,25 @@
     };
 
     StackOfPages.prototype.findElement = function(thing) {
-      var el, instance, _ref;
+      var div, _ref;
+      if (typeof thing === 'function') {
+        console.log('Thing is a constructor');
+        thing = new thing;
+        thing = thing.el;
+      }
+      if ((_ref = typeof thing) === 'string' || _ref === 'number' || _ref === 'boolean') {
+        div = document.createElement('div');
+        div.innerHTML = thing;
+        thing = div.children[0];
+      }
+      if ('el' in thing && thing.el instanceof Element) {
+        thing = thing.el;
+      }
+      if ('jquery' in thing) {
+        thing = thing.get(0);
+      }
       if (thing instanceof Element) {
         return thing;
-      } else {
-        if (typeof thing === 'function') {
-          instance = new thing;
-          return instance.el;
-        } else if ((_ref = typeof thing) === 'string' || _ref === 'number' || _ref === 'boolean') {
-          el = document.createElement(this.tagName);
-          el.innerHTML = thing;
-          return el;
-        } else if ('jQuery' in window && thing instanceof jQuery) {
-          return thing.get(0);
-        } else {
-          return thing.el;
-        }
       }
     };
 
@@ -191,7 +194,7 @@
       if (!foundMatch) {
         params.notFound = true;
         if (this.notFoundKey in this.hashes) {
-          return this.activate(this.hashes.NOT_FOUND, params);
+          return this.activate(this.hashes[this.notFoundKey], params);
         }
       }
     };
@@ -206,9 +209,7 @@
       if (this.changeDisplay) {
         el.style.display = '';
       }
-      if (!params.initial) {
-        return dispatchEvent(el, this.activateEvent, params);
-      }
+      return dispatchEvent(el, this.activateEvent, params);
     };
 
     StackOfPages.prototype.deactivate = function(el, params) {
@@ -216,9 +217,7 @@
       if (this.changeDisplay) {
         el.style.display = 'none';
       }
-      if (!params.initial) {
-        return dispatchEvent(el, this.deactivateEvent, params);
-      }
+      return dispatchEvent(el, this.deactivateEvent, params);
     };
 
     StackOfPages.prototype.destroy = function() {

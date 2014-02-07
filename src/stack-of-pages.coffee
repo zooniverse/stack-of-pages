@@ -72,20 +72,24 @@ class StackOfPages
       throw new Error "Couldn't determine element for #{hash}"
 
   findElement: (thing) ->
+    if typeof thing is 'function'
+      console.log 'Thing is a constructor'
+      thing = new thing
+      thing = thing.el
+
+    if typeof thing in ['string', 'number', 'boolean']
+      div = document.createElement 'div'
+      div.innerHTML = thing
+      thing = div.children[0]
+
+    if 'el' of thing and thing.el instanceof Element
+      thing = thing.el
+
+    if 'jquery' of thing
+      thing = thing.get 0
+
     if thing instanceof Element
       thing
-    else
-      if typeof thing is 'function'
-        instance = new thing
-        instance.el
-      else if typeof thing in ['string', 'number', 'boolean']
-        el = document.createElement @tagName
-        el.innerHTML = thing
-        el
-      else if 'jQuery' of window and thing instanceof jQuery
-        thing.get 0
-      else
-        thing.el
 
   handleEvent: (e) ->
     handler = switch e.type
@@ -141,7 +145,7 @@ class StackOfPages
     unless foundMatch
       params.notFound = true
       if @notFoundKey of @hashes
-        @activate @hashes.NOT_FOUND, params
+        @activate @hashes[@notFoundKey], params
 
   activate: (el, params) ->
     if @current?
@@ -154,8 +158,7 @@ class StackOfPages
     if @changeDisplay
       el.style.display = ''
 
-    unless params.initial
-      dispatchEvent el, @activateEvent , params
+    dispatchEvent el, @activateEvent , params
 
   deactivate: (el, params) ->
     el.removeAttribute @activatedAttr
@@ -163,8 +166,7 @@ class StackOfPages
     if @changeDisplay
       el.style.display = 'none'
 
-    unless params.initial
-      dispatchEvent el, @deactivateEvent, params
+    dispatchEvent el, @deactivateEvent, params
 
   destroy: ->
     removeEventListener 'hashchange', this, false
