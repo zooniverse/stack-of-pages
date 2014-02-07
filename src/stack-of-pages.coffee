@@ -1,3 +1,8 @@
+dispatchEvent = (element, eventName, detail) ->
+  e = document.createEvent 'CustomEvent'
+  e.initCustomEvent eventName, true, true, detail
+  element.dispatchEvent e
+
 class StackOfPages
   @recentClick = false
 
@@ -149,12 +154,14 @@ class StackOfPages
     @_toggleClass el, @activeClass, true
     @_toggleClass el, @inactiveClass, false
     target.activate? params...
+    dispatchEvent el, 'stack-activate', params
 
   deactivatePage: ({target, el}, params...) ->
     el.style.display = 'none' if @changeDisplay
     @_toggleClass el, @activeClass, false
     @_toggleClass el, @inactiveClass, true
     target.deactivate? params...
+    dispatchEvent el, 'stack-deactivate', params
 
   _toggleClass: (el, className, condition) ->
     classList = el.className.split /\s+/
