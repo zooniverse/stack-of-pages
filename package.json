@@ -1,10 +1,14 @@
 {
   "name": "stack-of-pages",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "main": "./stack-of-pages.js",
   "devDependencies": {
-    "coffee-script": "~1.6.3",
-    "easy-exec": "~0.0.5",
-    "silver-server": "~0.1.1"
+    "coffee-script": "~1.7.1",
+    "serveup": "0.0.5"
+  },
+  "scripts": {
+    "compile": "coffee --compile --watch ./stack-of-pages.coffee",
+    "serve": "serveup --port 4635",
+    "start": "npm run compile & npm run serve"
   }
 }
