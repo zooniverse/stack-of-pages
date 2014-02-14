@@ -38,7 +38,7 @@ class StackOfPages
   el: null
   current: null
 
-  constructor: (settings) ->
+  constructor: (settings = {}) ->
     @el ?= document.createElement @tagName
     @el.className = @className
 
@@ -75,18 +75,17 @@ class StackOfPages
     if typeof thing is 'function'
       console.log 'Thing is a constructor'
       thing = new thing
-      thing = thing.el
 
     if typeof thing in ['string', 'number', 'boolean']
       div = document.createElement 'div'
       div.innerHTML = thing
       thing = div.children[0]
 
-    if 'el' of thing and thing.el instanceof Element
-      thing = thing.el
-
-    if 'jquery' of thing
-      thing = thing.get 0
+    if 'el' of thing
+      if thing.el instanceof Element
+        thing = thing.el
+      else if 'jquery' of thing.el
+        thing = thing.el.get 0
 
     if thing instanceof Element
       thing
@@ -110,6 +109,8 @@ class StackOfPages
 
     foundMatch = false
 
+    params = {}
+
     for hash, element of @hashes
       paramsOrder = ['hash']
 
@@ -126,10 +127,9 @@ class StackOfPages
           else
             segment
 
-      hashPattern = "^#{hashPatternSegments.join '/'}/?$"
-      params = {hashPattern}
+      params.hashPattern = "^#{hashPatternSegments.join '/'}/?$"
 
-      matches = currentHash.match hashPattern
+      matches = currentHash.match params.hashPattern
 
       if matches?
         foundMatch = true

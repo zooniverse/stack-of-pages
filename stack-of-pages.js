@@ -60,6 +60,9 @@
 
     function StackOfPages(settings) {
       var key, value;
+      if (settings == null) {
+        settings = {};
+      }
       if (this.el == null) {
         this.el = document.createElement(this.tagName);
       }
@@ -105,18 +108,18 @@
       if (typeof thing === 'function') {
         console.log('Thing is a constructor');
         thing = new thing;
-        thing = thing.el;
       }
       if ((_ref = typeof thing) === 'string' || _ref === 'number' || _ref === 'boolean') {
         div = document.createElement('div');
         div.innerHTML = thing;
         thing = div.children[0];
       }
-      if ('el' in thing && thing.el instanceof Element) {
-        thing = thing.el;
-      }
-      if ('jquery' in thing) {
-        thing = thing.get(0);
+      if ('el' in thing) {
+        if (thing.el instanceof Element) {
+          thing = thing.el;
+        } else if ('jquery' in thing.el) {
+          thing = thing.el.get(0);
+        }
       }
       if (thing instanceof Element) {
         return thing;
@@ -135,7 +138,7 @@
     };
 
     StackOfPages.prototype.onHashChange = function() {
-      var currentHash, element, foundMatch, hash, hashPattern, hashPatternSegments, hashSegments, i, matches, param, params, paramsOrder, segment, x, y, _i, _len, _ref, _ref1;
+      var currentHash, element, foundMatch, hash, hashPatternSegments, hashSegments, i, matches, param, params, paramsOrder, segment, x, y, _i, _len, _ref, _ref1;
       currentHash = location.hash || this["default"];
       if (recentClick || !(currentHash in scrollOffsets)) {
         scrollOffsets[currentHash] = {
@@ -148,6 +151,7 @@
         return scrollTo(x, y);
       });
       foundMatch = false;
+      params = {};
       _ref1 = this.hashes;
       for (hash in _ref1) {
         element = _ref1[hash];
@@ -173,11 +177,8 @@
           }
           return _results;
         })();
-        hashPattern = "^" + (hashPatternSegments.join('/')) + "/?$";
-        params = {
-          hashPattern: hashPattern
-        };
-        matches = currentHash.match(hashPattern);
+        params.hashPattern = "^" + (hashPatternSegments.join('/')) + "/?$";
+        matches = currentHash.match(params.hashPattern);
         if (matches != null) {
           foundMatch = true;
           for (i = _i = 0, _len = paramsOrder.length; _i < _len; i = ++_i) {
