@@ -38,11 +38,13 @@
 
     StackOfPages.prototype["default"] = '#/';
 
+    StackOfPages.prototype.changeDisplay = true;
+
+    StackOfPages.prototype.functionsAreConstructors = true;
+
     StackOfPages.prototype.tagName = 'div';
 
     StackOfPages.prototype.className = 'stack-of-pages';
-
-    StackOfPages.prototype.changeDisplay = true;
 
     StackOfPages.prototype.activatedAttr = 'data-active-in-stack';
 
@@ -106,8 +108,11 @@
     StackOfPages.prototype.findElement = function(thing) {
       var div, _ref;
       if (typeof thing === 'function') {
-        console.log('Thing is a constructor');
-        thing = new thing;
+        if (this.functionsAreConstructors) {
+          thing = new thing;
+        } else {
+          thing = thing.call(this, this);
+        }
       }
       if ((_ref = typeof thing) === 'string' || _ref === 'number' || _ref === 'boolean') {
         div = document.createElement('div');

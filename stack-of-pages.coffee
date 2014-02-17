@@ -24,11 +24,12 @@ addEventListener 'scroll', onScroll, false
 class StackOfPages
   hashes: null
   default: '#/'
+  changeDisplay: true
+  functionsAreConstructors: true
 
   tagName: 'div'
   className: 'stack-of-pages'
 
-  changeDisplay: true
   activatedAttr: 'data-active-in-stack'
   hashRootAttr: 'data-location-hash'
   activateEvent: 'activate-in-stack'
@@ -73,8 +74,10 @@ class StackOfPages
 
   findElement: (thing) ->
     if typeof thing is 'function'
-      console.log 'Thing is a constructor'
-      thing = new thing
+      if @functionsAreConstructors
+        thing = new thing
+      else
+        thing = thing.call @, @
 
     if typeof thing in ['string', 'number', 'boolean']
       div = document.createElement 'div'
